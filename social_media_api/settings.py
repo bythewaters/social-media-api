@@ -46,6 +46,11 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "debug_toolbar",
     "django_celery_beat",
+    "users",
+    "posts",
+    "followings",
+    "profiles",
+    "likes",
 ]
 
 MIDDLEWARE = [
