@@ -14,6 +14,8 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
+import users.models
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -114,6 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "users.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
