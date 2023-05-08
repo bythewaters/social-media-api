@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import (
@@ -21,6 +22,8 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
+
+from social_media_api import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -37,4 +40,4 @@ urlpatterns = [
         name="redoc",
     ),
     path("__debug__/", include("debug_toolbar.urls")),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
