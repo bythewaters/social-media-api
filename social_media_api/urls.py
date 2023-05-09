@@ -27,7 +27,8 @@ from social_media_api import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/library/user/", include("users.urls", namespace="users")),
+    path("api/social-media/user/", include("users.urls", namespace="users")),
+    path("api/social-media/profiles/", include("profiles.urls", namespace="profiles")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/doc/swagger/",

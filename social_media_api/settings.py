@@ -14,8 +14,6 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
-import users.models
-
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -49,15 +47,16 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "debug_toolbar",
     "django_celery_beat",
+    "profiles",
     "users",
     "posts",
     "followings",
-    "profiles",
     "likes",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
