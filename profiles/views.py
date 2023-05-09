@@ -1,3 +1,6 @@
+from django.db.models import QuerySet
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, mixins, permissions, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -19,6 +22,33 @@ class ProfileListViewSet(
     serializer_class = ProfileListSerializer
     queryset = Profile.objects.all()
 
+    def get_queryset(self) -> QuerySet[Profile]:
+        queryset = self.queryset
+        username = self.request.query_params.get("username")
+        location = self.request.query_params.get("location")
+        if username:
+            return queryset.filter(username__icontains=username)
+        if location:
+            return queryset.filter(location__icontains=location)
+        return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "username",
+                type=OpenApiTypes.STR,
+                description="Filter by username (ex. ?username=username_user)",
+            ),
+            OpenApiParameter(
+                "location",
+                type=OpenApiTypes.STR,
+                description="Filter by location (ex. ?location=location_user)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class ProfileCreateViewSet(
     mixins.CreateModelMixin,
@@ -38,7 +68,7 @@ class MyProfileViewSet(
     queryset = Profile.objects.all()
     permission_classes = [permissions.IsAuthenticated, HasProfilePermission]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Profile]:
         return Profile.objects.filter(user=self.request.user)
 
     @action(
