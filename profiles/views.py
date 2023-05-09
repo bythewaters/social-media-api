@@ -4,14 +4,24 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from profiles.models import Profile
+from profiles.permissions import HasProfilePermission
 from profiles.serializers import (
     ProfileSerializer,
     ProfileUpdateSerializer,
+    ProfileListSerializer,
 )
 
 
 class ProfileListViewSet(
     mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = ProfileListSerializer
+    queryset = Profile.objects.all()
+
+
+class ProfileCreateViewSet(
+    mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = ProfileSerializer
@@ -26,6 +36,7 @@ class MyProfileViewSet(
 ):
     serializer_class = ProfileUpdateSerializer
     queryset = Profile.objects.all()
+    permission_classes = [permissions.IsAuthenticated, HasProfilePermission]
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
@@ -38,9 +49,7 @@ class MyProfileViewSet(
     )
     def update_profile(self, request: Request) -> Response:
         profile = self.request.user.profile
-        serializer = self.get_serializer(
-            profile, data=request.data, partial=True
-        )
+        serializer = self.get_serializer(profile, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
