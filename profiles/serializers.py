@@ -4,6 +4,13 @@ from users.serializers import UserSerializer
 
 
 class ProfileListSerializer(serializers.ModelSerializer):
+    following = serializers.SlugRelatedField(
+        slug_field="email", read_only=True, many=True
+    )
+    followers = serializers.SlugRelatedField(
+        slug_field="email", read_only=True, many=True
+    )
+
     class Meta:
         model = Profile
         fields = [
