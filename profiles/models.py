@@ -1,5 +1,4 @@
 from django.db import models
-
 from social_media_api import settings
 
 
@@ -14,6 +13,16 @@ class Profile(models.Model):
     location = models.CharField(max_length=100, null=True, blank=True)
     profile_picture = models.ImageField(
         upload_to="profile-pictures", null=True, blank=True
+    )
+    followers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name="follower",
+        blank=True,
+    )
+    following = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name="following",
+        blank=True,
     )
 
     def __str__(self) -> str:

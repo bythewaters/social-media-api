@@ -1,22 +1,27 @@
+from typing import Optional
+
 from django.db.models import QuerySet
+from django.http import HttpResponseRedirect
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, mixins, permissions, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from profiles.models import Profile
 from profiles.permissions import HasProfilePermission
 from profiles.serializers import (
-    ProfileSerializer,
-    ProfileUpdateSerializer,
     ProfileListSerializer,
+    ProfileDetailSerializer,
+    UpdateProfileSerializer,
 )
 
 
 class ProfileListViewSet(
     mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = ProfileListSerializer
@@ -30,7 +35,40 @@ class ProfileListViewSet(
             return queryset.filter(username__icontains=username)
         if location:
             return queryset.filter(location__icontains=location)
-        return queryset
+        return queryset.exclude(user=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return ProfileDetailSerializer
+        return self.serializer_class
+
+    @action(
+        methods=["GET", "PATCH"],
+        detail=True,
+        url_path="unfollow",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def unfollow(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+        profile = self.request.user.profile
+        unfollow_user_profile = Profile.objects.get(pk=pk)
+        profile.followers.remove(unfollow_user_profile.user.id)
+        unfollow_user_profile.following.remove(self.request.user)
+        redirect_url = reverse("profiles:profiles_list-list")
+        return HttpResponseRedirect(redirect_url)
+
+    @action(
+        methods=["GET", "PATCH"],
+        detail=True,
+        url_path="follow",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def follow(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+        profile = self.request.user.profile
+        follow_user_profile = Profile.objects.get(pk=pk)
+        profile.followers.add(follow_user_profile.user.id)
+        follow_user_profile.following.add(self.request.user)
+        redirect_url = reverse("profiles:profiles_list-list")
+        return HttpResponseRedirect(redirect_url)
 
     @extend_schema(
         parameters=[
@@ -54,7 +92,7 @@ class ProfileCreateViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = ProfileSerializer
+    serializer_class = ProfileListSerializer
     queryset = Profile.objects.all()
 
 
@@ -64,12 +102,17 @@ class MyProfileViewSet(
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = ProfileUpdateSerializer
+    serializer_class = ProfileDetailSerializer
     queryset = Profile.objects.all()
     permission_classes = [permissions.IsAuthenticated, HasProfilePermission]
 
     def get_queryset(self) -> QuerySet[Profile]:
         return Profile.objects.filter(user=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == "update_profile":
+            return UpdateProfileSerializer
+        return self.serializer_class
 
     @action(
         methods=["GET", "PATCH"],

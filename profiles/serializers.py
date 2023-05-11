@@ -1,39 +1,25 @@
-# from users.serializers import UserSerializer
 from rest_framework import serializers
-
 from profiles.models import Profile
 from users.serializers import UserSerializer
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = [
             "id",
-            "user",
             "username",
             "first_name",
             "last_name",
             "bio",
             "location",
             "profile_picture",
+            "followers",
+            "following",
         ]
 
 
-class ProfileListSerializer(ProfileSerializer):
-    class Meta:
-        model = Profile
-        fields = [
-            "username",
-            "first_name",
-            "last_name",
-            "bio",
-            "location",
-            "profile_picture",
-        ]
-
-
-class ProfileDetailSerializer(ProfileSerializer):
+class ProfileDetailSerializer(ProfileListSerializer):
     user = UserSerializer(many=False, read_only=True)
 
     class Meta:
@@ -46,10 +32,14 @@ class ProfileDetailSerializer(ProfileSerializer):
             "bio",
             "location",
             "profile_picture",
+            "followers",
+            "following",
         ]
 
 
-class ProfileUpdateSerializer(ProfileDetailSerializer):
+class UpdateProfileSerializer(ProfileListSerializer):
+    user = UserSerializer(many=False, read_only=True)
+
     class Meta:
         model = Profile
         fields = [
