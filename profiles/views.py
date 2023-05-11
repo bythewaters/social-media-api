@@ -16,6 +16,7 @@ from profiles.serializers import (
     ProfileListSerializer,
     ProfileDetailSerializer,
     UpdateProfileSerializer,
+    ProfileCreateSerializer, ProfileUploadImageSerializer,
 )
 
 
@@ -43,7 +44,7 @@ class ProfileListViewSet(
         return self.serializer_class
 
     @action(
-        methods=["GET", "PATCH"],
+        methods=["PATCH"],
         detail=True,
         url_path="unfollow",
         permission_classes=[permissions.IsAuthenticated],
@@ -57,7 +58,7 @@ class ProfileListViewSet(
         return HttpResponseRedirect(redirect_url)
 
     @action(
-        methods=["GET", "PATCH"],
+        methods=["PATCH"],
         detail=True,
         url_path="follow",
         permission_classes=[permissions.IsAuthenticated],
@@ -92,7 +93,7 @@ class ProfileCreateViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = ProfileListSerializer
+    serializer_class = ProfileCreateSerializer
     queryset = Profile.objects.all()
 
 
@@ -112,6 +113,8 @@ class MyProfileViewSet(
     def get_serializer_class(self):
         if self.action == "update_profile":
             return UpdateProfileSerializer
+        if self.action == "upload_image":
+            return ProfileUploadImageSerializer
         return self.serializer_class
 
     @action(
@@ -126,3 +129,20 @@ class MyProfileViewSet(
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        methods=["POST"],
+        detail=False,
+        url_path="upload-image",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def upload_image(self, request):
+        """Endpoint for uploading image to specific movie"""
+        profile = self.request.user.profile
+        serializer = self.get_serializer(profile, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

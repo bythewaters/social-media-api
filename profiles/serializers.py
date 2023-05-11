@@ -58,3 +58,24 @@ class UpdateProfileSerializer(ProfileListSerializer):
             "location",
             "profile_picture",
         ]
+
+
+class ProfileCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "bio",
+            "location",
+        ]
+
+
+class ProfileUploadImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = [
+            "id",
+            "profile_picture"
+        ]
