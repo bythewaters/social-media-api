@@ -34,6 +34,7 @@ class RetrievePostsView(
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self) -> QuerySet[Post]:
+        """Filtering posts by title and created_time"""
         queryset = self.queryset
         title = self.request.query_params.get("title")
         created_time = self.request.query_params.get("created_time")

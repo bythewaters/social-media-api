@@ -29,6 +29,7 @@ class ProfileListViewSet(
     queryset = Profile.objects.all()
 
     def get_queryset(self) -> QuerySet[Profile]:
+        """Filtering by username and location"""
         queryset = self.queryset
         username = self.request.query_params.get("username")
         location = self.request.query_params.get("location")
@@ -39,6 +40,7 @@ class ProfileListViewSet(
         return queryset.exclude(user=self.request.user)
 
     def get_serializer_class(self):
+        """Return serializer depend on method"""
         if self.action == "retrieve":
             return ProfileDetailSerializer
         return self.serializer_class
@@ -50,6 +52,7 @@ class ProfileListViewSet(
         permission_classes=[permissions.IsAuthenticated],
     )
     def unfollow(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+        """Endpoint for unfollow user"""
         profile = self.request.user.profile
         unfollow_user_profile = Profile.objects.get(pk=pk)
         profile.followers.remove(unfollow_user_profile.user.id)
@@ -64,6 +67,7 @@ class ProfileListViewSet(
         permission_classes=[permissions.IsAuthenticated],
     )
     def follow(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+        """Endpoint for follow user"""
         profile = self.request.user.profile
         follow_user_profile = Profile.objects.get(pk=pk)
         profile.followers.add(follow_user_profile.user.id)
@@ -108,9 +112,11 @@ class MyProfileViewSet(
     permission_classes = [permissions.IsAuthenticated, HasProfilePermission]
 
     def get_queryset(self) -> QuerySet[Profile]:
+        """Return queryset for current user"""
         return Profile.objects.filter(user=self.request.user)
 
     def get_serializer_class(self):
+        """Return serializer depend on method"""
         if self.action == "update_profile":
             return UpdateProfileSerializer
         if self.action == "upload_image":
@@ -124,6 +130,7 @@ class MyProfileViewSet(
         permission_classes=[permissions.IsAuthenticated],
     )
     def update_profile(self, request: Request) -> Response:
+        """Endpoint for update user profile"""
         profile = self.request.user.profile
         serializer = self.get_serializer(profile, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -137,7 +144,7 @@ class MyProfileViewSet(
         permission_classes=[permissions.IsAuthenticated],
     )
     def upload_image(self, request):
-        """Endpoint for uploading image to specific movie"""
+        """Endpoint for uploading image to specific profile"""
         profile = self.request.user.profile
         serializer = self.get_serializer(profile, data=request.data)
 
