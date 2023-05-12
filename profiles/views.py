@@ -44,7 +44,7 @@ class ProfileListViewSet(
         return self.serializer_class
 
     @action(
-        methods=["PATCH"],
+        methods=["GET", "PATCH"],
         detail=True,
         url_path="unfollow",
         permission_classes=[permissions.IsAuthenticated],
@@ -58,7 +58,7 @@ class ProfileListViewSet(
         return HttpResponseRedirect(redirect_url)
 
     @action(
-        methods=["PATCH"],
+        methods=["GET", "PATCH"],
         detail=True,
         url_path="follow",
         permission_classes=[permissions.IsAuthenticated],
