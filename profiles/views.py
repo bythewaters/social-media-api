@@ -55,8 +55,8 @@ class ProfileListViewSet(
         """Endpoint for unfollow user"""
         profile = self.request.user.profile
         unfollow_user_profile = Profile.objects.get(pk=pk)
-        profile.followers.remove(unfollow_user_profile.user.id)
-        unfollow_user_profile.following.remove(self.request.user)
+        profile.following.remove(unfollow_user_profile.user.id)
+        unfollow_user_profile.followers.remove(self.request.user)
         redirect_url = reverse("profiles:profiles_list-list")
         return HttpResponseRedirect(redirect_url)
 
@@ -70,8 +70,8 @@ class ProfileListViewSet(
         """Endpoint for follow user"""
         profile = self.request.user.profile
         follow_user_profile = Profile.objects.get(pk=pk)
-        profile.followers.add(follow_user_profile.user.id)
-        follow_user_profile.following.add(self.request.user)
+        profile.following.add(follow_user_profile.user.id)
+        follow_user_profile.followers.add(self.request.user)
         redirect_url = reverse("profiles:profiles_list-list")
         return HttpResponseRedirect(redirect_url)
 

@@ -24,7 +24,7 @@ class Profile(models.Model):
     bio = models.CharField(max_length=100, null=True, blank=True)
     location = models.CharField(max_length=100, null=True, blank=True)
     profile_picture = models.ImageField(
-        upload_to=profile_image_file_path, null=True,
+        upload_to=profile_image_file_path, null=True, blank=True
     )
     followers = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
