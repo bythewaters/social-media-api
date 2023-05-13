@@ -13,7 +13,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from comments.serializers import CommentaryCreateSerializer
 from .models import Post
-from .serializers import PostSerializer, PostCreateSerializer
+from .serializers import PostSerializer, PostCreateSerializer, PostDetailSerializer
 
 
 class CreatePostView(
@@ -52,6 +52,8 @@ class PostListView(
     def get_serializer_class(self):
         if self.action == "add_comment":
             return CommentaryCreateSerializer
+        if self.action == "retrieve":
+            return PostDetailSerializer
         return self.serializer_class
 
     @action(
