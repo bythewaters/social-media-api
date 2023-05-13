@@ -4,7 +4,7 @@ from rest_framework.request import Request
 
 
 class HasProfilePermission(permissions.BasePermission):
-    def has_permission(self, request: Request, view):
+    def has_permission(self, request: Request, view: object) -> bool:
         return bool(
             request.method in SAFE_METHODS and request.user and request.user.profile
         )

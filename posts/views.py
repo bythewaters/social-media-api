@@ -5,7 +5,9 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import permissions, mixins, status
 from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
 from .models import Post
@@ -20,7 +22,7 @@ class CreatePostView(
     serializer_class = PostCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: Serializer[Post]) -> None:
         serializer.save(owner=self.request.user)
 
 
@@ -51,7 +53,7 @@ class RetrievePostsView(
         url_path="my-posts",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def my_posts(self, request):
+    def my_posts(self, request: Request) -> Response:
         """Endpoint for get all post current user"""
         posts = Post.objects.filter(owner=request.user)
         serializer = self.get_serializer(posts, many=True)
@@ -63,7 +65,7 @@ class RetrievePostsView(
         url_path="followers-posts",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def followers_posts(self, request):
+    def followers_posts(self, request: Request) -> Response:
         """Endpoint for get followers posts"""
         user = request.user
         followers = user.profile.followers.all()

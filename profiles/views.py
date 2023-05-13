@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Type
 
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.serializers import Serializer
 
 from profiles.models import Profile
 from profiles.permissions import HasProfilePermission
@@ -41,7 +42,7 @@ class ProfileListViewSet(
             return queryset.filter(location__icontains=location)
         return queryset.exclude(user=self.request.user)
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[Serializer[Profile]]:
         """Return serializer depend on method"""
         if self.action == "retrieve":
             return ProfileDetailSerializer
@@ -120,7 +121,7 @@ class MyProfileViewSet(
         """Return queryset for current user"""
         return Profile.objects.filter(user=self.request.user)
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[Serializer[Profile]]:
         """Return serializer depend on method"""
         if self.action == "update_profile":
             return UpdateProfileSerializer
@@ -148,7 +149,7 @@ class MyProfileViewSet(
         url_path="upload-image",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def upload_image(self, request):
+    def upload_image(self, request: Request) -> Optional[Response]:
         """Endpoint for uploading image to specific profile"""
         profile = self.request.user.profile
         serializer = self.get_serializer(profile, data=request.data)
