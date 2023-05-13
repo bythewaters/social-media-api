@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from django.db.models import QuerySet
 from drf_spectacular.types import OpenApiTypes
@@ -10,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
+from comments.serializers import CommentaryCreateSerializer
 from .models import Post
 from .serializers import PostSerializer, PostCreateSerializer
 
@@ -26,7 +28,7 @@ class CreatePostView(
         serializer.save(owner=self.request.user)
 
 
-class RetrievePostsView(
+class PostListView(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     GenericViewSet,
@@ -46,6 +48,11 @@ class RetrievePostsView(
             date = datetime.strptime(created_time, "%Y-%m-%d").date()
             queryset = queryset.filter(created_time__date=date)
         return queryset
+
+    def get_serializer_class(self):
+        if self.action == "add_comment":
+            return CommentaryCreateSerializer
+        return self.serializer_class
 
     @action(
         methods=["GET"],
@@ -69,10 +76,24 @@ class RetrievePostsView(
         """Endpoint for get followers posts"""
         user = request.user
         followers = user.profile.followers.all()
-        posts = Post.objects.filter(owner__in=followers).order_by(
-            "-created_time"
-        )
+        posts = Post.objects.filter(owner__in=followers).order_by("-created_time")
         serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="add-comment",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def add_comment(self, request: Request, pk: Optional[int]) -> Response:
+        """Endpoint for get all post current user"""
+        user = self.request.user
+        serializer = self.get_serializer(
+            data=request.data, context={"post_pk": pk, "user": user}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
@@ -86,8 +107,7 @@ class RetrievePostsView(
                 "created_time",
                 type=OpenApiTypes.DATE,
                 description=(
-                        "Filter by created_time of posts "
-                        "(ex. ?date=2022-10-23)"
+                    "Filter by created_time of posts " "(ex. ?date=2022-10-23)"
                 ),
             ),
         ]
