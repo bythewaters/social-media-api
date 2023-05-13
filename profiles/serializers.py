@@ -4,12 +4,8 @@ from users.serializers import UserSerializer
 
 
 class ProfileListSerializer(serializers.ModelSerializer):
-    following = serializers.SlugRelatedField(
-        slug_field="email", read_only=True, many=True
-    )
-    followers = serializers.SlugRelatedField(
-        slug_field="email", read_only=True, many=True
-    )
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -25,9 +21,23 @@ class ProfileListSerializer(serializers.ModelSerializer):
             "following",
         ]
 
+    @staticmethod
+    def get_followers(obj: Profile) -> int:
+        return obj.followers.count()
+
+    @staticmethod
+    def get_following(obj: Profile) -> int:
+        return obj.following.count()
+
 
 class ProfileDetailSerializer(ProfileListSerializer):
     user = UserSerializer(many=False, read_only=True)
+    following = serializers.SlugRelatedField(
+        slug_field="email", read_only=True, many=True
+    )
+    followers = serializers.SlugRelatedField(
+        slug_field="email", read_only=True, many=True
+    )
 
     class Meta:
         model = Profile
