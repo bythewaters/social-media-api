@@ -16,7 +16,8 @@ from profiles.serializers import (
     ProfileListSerializer,
     ProfileDetailSerializer,
     UpdateProfileSerializer,
-    ProfileCreateSerializer, ProfileUploadImageSerializer,
+    ProfileCreateSerializer,
+    ProfileUploadImageSerializer,
 )
 
 
@@ -27,6 +28,7 @@ class ProfileListViewSet(
 ):
     serializer_class = ProfileListSerializer
     queryset = Profile.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self) -> QuerySet[Profile]:
         """Filtering by username and location"""
@@ -99,6 +101,9 @@ class ProfileCreateViewSet(
 ):
     serializer_class = ProfileCreateSerializer
     queryset = Profile.objects.all()
+    permission_classes = [
+        HasProfilePermission,
+    ]
 
 
 class MyProfileViewSet(
