@@ -14,3 +14,15 @@ class Like(models.Model):
         related_name="likes",
         on_delete=models.CASCADE,
     )
+
+
+class Dislike(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    post = models.ForeignKey(
+        Post,
+        related_name="dislikes",
+        on_delete=models.CASCADE,
+    )

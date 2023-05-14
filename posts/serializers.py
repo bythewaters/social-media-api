@@ -3,13 +3,14 @@ from typing import Optional
 from rest_framework import serializers
 
 from comments.serializers import CommentarySerializer
-from likes.serializers import LikeSerializer
+from likes.serializers import LikeSerializer, DislikeSerializer
 from .models import Post
 
 
 class PostSerializer(serializers.ModelSerializer):
     comments = serializers.IntegerField(read_only=True)
     likes_count = serializers.SerializerMethodField()
+    dislikes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -21,12 +22,18 @@ class PostSerializer(serializers.ModelSerializer):
             "created_time",
             "comments",
             "likes_count",
+            "dislikes_count",
         ]
 
     @staticmethod
     def get_likes_count(instance: Post) -> Optional[int]:
         """This method count all likes"""
         return instance.likes.count()
+
+    @staticmethod
+    def get_dislikes_count(instance: Post) -> Optional[int]:
+        """This method count all likes"""
+        return instance.dislikes.count()
 
     def to_representation(self, instance: Post) -> dict:
         """
@@ -41,6 +48,7 @@ class PostSerializer(serializers.ModelSerializer):
 class PostDetailSerializer(serializers.ModelSerializer):
     commentaries = CommentarySerializer(many=True, read_only=True)
     likes = LikeSerializer(many=True, read_only=True)
+    dislikes = DislikeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
@@ -52,6 +60,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "created_time",
             "commentaries",
             "likes",
+            "dislikes"
         ]
 
 

@@ -30,3 +30,32 @@ class LikeDeleteSerializer(serializers.ModelSerializer):
             "user",
             "post",
         ]
+
+
+class DislikeSerializer(serializers.ModelSerializer):
+    user = UserUsernameSerializer(read_only=True)
+
+    class Meta:
+        model = Like
+        fields = [
+            "id",
+            "user",
+        ]
+
+
+class DislikeCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = [
+            "user",
+            "post",
+        ]
+
+
+class DislikeDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = [
+            "user",
+            "post",
+        ]

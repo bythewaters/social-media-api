@@ -14,7 +14,7 @@ from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
 from comments.serializers import CommentaryCreateSerializer
-from likes.models import Like
+from likes.models import Like, Dislike
 from likes.serializers import LikeCreateSerializer, LikeDeleteSerializer
 from .models import Post
 from .serializers import PostSerializer, PostCreateSerializer, PostDetailSerializer
@@ -63,6 +63,18 @@ class PostListView(
         if self.action == "dislike":
             return LikeDeleteSerializer
         return self.serializer_class
+
+    @staticmethod
+    def create_dislike(post: Post, user) -> None:
+        dislike = Dislike.objects.create(user=user, post=post)
+        post.dislikes.add(dislike)
+        post.save()
+
+    @staticmethod
+    def create_like(post: Post, user) -> None:
+        likes = Like.objects.create(user=user, post=post)
+        post.likes.add(likes)
+        post.save()
 
     @action(
         methods=["GET"],
@@ -116,9 +128,11 @@ class PostListView(
         """Endpoint for like post"""
         user = self.request.user
         post = Post.objects.get(pk=pk)
+        if post.dislikes.filter(user=user).exists():
+            post.dislikes.get(user=user).delete()
+            self.create_like()
         if not post.likes.filter(user=user).exists():
-            like = Like.objects.create(user=user, post_id=pk)
-            post.likes.add(like)
+            self.create_like(post, user)
         return HttpResponseRedirect(reverse("posts:post_list-list"))
 
     @action(
@@ -133,6 +147,9 @@ class PostListView(
         post = Post.objects.get(pk=pk)
         if post.likes.filter(user=user).exists():
             post.likes.get(user=user).delete()
+            self.create_dislike(post, user)
+        if not post.dislikes.filter(user=user).exists():
+            self.create_dislike(post, user)
         return HttpResponseRedirect(reverse("posts:post_list-list"))
 
     @extend_schema(
