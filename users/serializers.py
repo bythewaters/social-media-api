@@ -22,3 +22,22 @@ class UserSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
+
+
+class UserUsernameSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "username",
+        ]
+
+    def to_representation(self, instance) -> dict:
+        """
+        Override the default to_representation method to add the user username
+        field to the serialized output.
+        """
+        data = super().to_representation(instance)
+        data["username"] = instance.profile.username
+        return data
