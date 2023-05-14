@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import Optional
 
 from django.db.models import QuerySet
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import permissions, mixins, status
@@ -12,6 +14,8 @@ from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
 from comments.serializers import CommentaryCreateSerializer
+from likes.models import Like
+from likes.serializers import LikeCreateSerializer, LikeDeleteSerializer
 from .models import Post
 from .serializers import PostSerializer, PostCreateSerializer, PostDetailSerializer
 
@@ -54,6 +58,10 @@ class PostListView(
             return CommentaryCreateSerializer
         if self.action == "retrieve":
             return PostDetailSerializer
+        if self.action == "like":
+            return LikeCreateSerializer
+        if self.action == "dislike":
+            return LikeDeleteSerializer
         return self.serializer_class
 
     @action(
@@ -98,6 +106,35 @@ class PostListView(
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(
+        methods=["GET", "POST"],
+        detail=True,
+        url_path="like",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def like(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+        """Endpoint for like post"""
+        user = self.request.user
+        post = Post.objects.get(pk=pk)
+        if not post.likes.filter(user=user).exists():
+            like = Like.objects.create(user=user, post_id=pk)
+            post.likes.add(like)
+        return HttpResponseRedirect(reverse("posts:post_list-list"))
+
+    @action(
+        methods=["GET", "POST"],
+        detail=True,
+        url_path="dislike",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def dislike(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+        """Endpoint for dislike post"""
+        user = self.request.user
+        post = Post.objects.get(pk=pk)
+        if post.likes.filter(user=user).exists():
+            post.likes.get(user=user).delete()
+        return HttpResponseRedirect(reverse("posts:post_list-list"))
+
     @extend_schema(
         parameters=[
             OpenApiParameter(
@@ -109,7 +146,7 @@ class PostListView(
                 "created_time",
                 type=OpenApiTypes.DATE,
                 description=(
-                    "Filter by created_time of posts " "(ex. ?date=2022-10-23)"
+                        "Filter by created_time of posts (ex. ?date=2022-10-23)"
                 ),
             ),
         ]
