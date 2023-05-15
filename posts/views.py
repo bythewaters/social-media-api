@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
+from posts.tasks import create_post_on_a_specific_date
 from comments.serializers import CommentaryCreateSerializer
 from likes.models import Like, Dislike
 from likes.serializers import LikeCreateSerializer, LikeDeleteSerializer
@@ -29,7 +30,19 @@ class CreatePostView(
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer: Serializer[Post]) -> None:
+        created_time = self.request.data.get("created_time")
+        title = self.request.data.get("title")
+        content = self.request.data.get("content")
+        eta = datetime.strptime(created_time, "%Y-%m-%dT%H:%M")
         serializer.save(owner=self.request.user)
+        create_post_on_a_specific_date.apply_async(
+            args=[
+                title,
+                content,
+                self.request.user.id,
+            ],
+            kwargs={"eta": eta},
+        )
 
 
 class PostListView(
@@ -130,7 +143,7 @@ class PostListView(
         post = Post.objects.get(pk=pk)
         if post.dislikes.filter(user=user).exists():
             post.dislikes.get(user=user).delete()
-            self.create_like()
+            self.create_like(post, user)
         if not post.likes.filter(user=user).exists():
             self.create_like(post, user)
         return HttpResponseRedirect(reverse("posts:post_list-list"))
@@ -162,9 +175,7 @@ class PostListView(
             OpenApiParameter(
                 "created_time",
                 type=OpenApiTypes.DATE,
-                description=(
-                        "Filter by created_time of posts (ex. ?date=2022-10-23)"
-                ),
+                description="Filter by created_time of posts (ex. ?date=2022-10-23)",
             ),
         ]
     )

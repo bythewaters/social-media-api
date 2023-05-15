@@ -70,5 +70,5 @@ class PostCreateSerializer(PostSerializer):
         fields = [
             "title",
             "content",
-            "created_time"
+            "created_time",
         ]

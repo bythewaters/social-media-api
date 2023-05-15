@@ -122,7 +122,7 @@ AUTH_USER_MODEL = "users.User"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
 
@@ -163,9 +163,15 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
 }
 
+CELERY_BEAT_SCHEDULE = {
+    "task-name": {
+        "task": "posts.tasks.create_post_on_a_specific_date",
+    },
+}
+
 # Celery Configuration Options
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
-# CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
-CELERY_TIMEZONE = "Europe/Kiev"
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_TIMEZONE = "Europe/Berlin"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
