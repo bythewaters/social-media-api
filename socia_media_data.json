@@ -1,0 +1,76 @@
+[
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$xkRpqzqt5TBAUpVpUgggvz$UuidO1TSFAcP+S5KYDEpuFDQabbSjEB/j7RCIJlC+cM=",
+      "last_login": null,
+      "is_superuser": true,
+      "email": "admin@social.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2022-08-09T09:06:18.876Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$bYryqs352siXiC11AOGLiR$dgMXnU74611MQ64l7KZZolioNHVgN4SMDeAOcFt+Y/M=",
+      "last_login": null,
+      "is_superuser": false,
+      "email": "test2@test.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2022-08-09T09:06:18.876Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "profiles.profile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "username": "john_doe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "bio": "I'm a software engineer",
+      "location": "New York"
+    }
+  },
+  {
+    "model": "profiles.profile",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "username": "jane_smith",
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "bio": "Photographer",
+      "location": "London"
+    }
+  },
+  {
+    "model": "posts.post",
+    "pk": 1,
+    "fields": {
+      "title": "Second Post",
+      "content": "This is my second post.",
+      "created_time": "2023-05-01T10:00:00Z",
+      "owner": 2
+    }
+  },
+  {
+    "model": "posts.post",
+    "pk": 2,
+    "fields": {
+      "title": "First Post",
+      "content": "This is my first post.",
+      "created_time": "2023-05-01T10:00:00Z",
+      "owner": 1
+    }
+  }
+]
