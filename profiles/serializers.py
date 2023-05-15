@@ -79,6 +79,7 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
             "last_name",
             "bio",
             "location",
+            "profile_picture",
         ]
 
 

@@ -4,17 +4,19 @@ from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import viewsets, mixins, permissions, status
+from rest_framework import mixins, permissions, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.serializers import Serializer
+from rest_framework.viewsets import GenericViewSet
 
 from profiles.models import Profile
 from profiles.permissions import (
     HasProfilePermission,
     CannotSubscribeYourselfPermission,
+    CreateProfilePermission,
 )
 from profiles.serializers import (
     ProfileListSerializer,
@@ -28,7 +30,7 @@ from profiles.serializers import (
 class ProfileListViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
+    GenericViewSet,
 ):
     serializer_class = ProfileListSerializer
     queryset = Profile.objects.all()
@@ -46,7 +48,7 @@ class ProfileListViewSet(
         return queryset
 
     def get_serializer_class(self) -> Type[Serializer[Profile]]:
-        """Return serializer depend on method"""
+        """Return serializer depending on the method"""
         if self.action == "retrieve":
             return ProfileDetailSerializer
         return self.serializer_class
@@ -107,20 +109,24 @@ class ProfileListViewSet(
 
 class ProfileCreateViewSet(
     mixins.CreateModelMixin,
-    viewsets.GenericViewSet,
+    GenericViewSet,
 ):
     serializer_class = ProfileCreateSerializer
     queryset = Profile.objects.all()
     permission_classes = [
-        HasProfilePermission,
+        permissions.IsAuthenticated,
+        CreateProfilePermission,
     ]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class MyProfileViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
-    viewsets.GenericViewSet,
+    GenericViewSet,
 ):
     serializer_class = ProfileDetailSerializer
     queryset = Profile.objects.all()
