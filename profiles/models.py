@@ -18,11 +18,11 @@ class Profile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile"
     )
-    username = models.CharField(max_length=100, null=True, blank=True)
+    username = models.CharField(max_length=100, null=True, blank=True, unique=True)
     first_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100, null=True, blank=True)
-    bio = models.CharField(max_length=100, null=True, blank=True)
-    location = models.CharField(max_length=100, null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
+    location = models.CharField(max_length=255, null=True, blank=True)
     profile_picture = models.ImageField(
         upload_to=profile_image_file_path, null=True, blank=True
     )
