@@ -32,7 +32,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_dislikes_count(instance: Post) -> Optional[int]:
-        """This method count all likes"""
+        """This method count all dislikes"""
         return instance.dislikes.count()
 
     def to_representation(self, instance: Post) -> dict:
