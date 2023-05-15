@@ -12,7 +12,10 @@ from rest_framework.reverse import reverse
 from rest_framework.serializers import Serializer
 
 from profiles.models import Profile
-from profiles.permissions import HasProfilePermission
+from profiles.permissions import (
+    HasProfilePermission,
+    CannotSubscribeYourselfPermission,
+)
 from profiles.serializers import (
     ProfileListSerializer,
     ProfileDetailSerializer,
@@ -40,7 +43,7 @@ class ProfileListViewSet(
             return queryset.filter(username__icontains=username)
         if location:
             return queryset.filter(location__icontains=location)
-        return queryset.exclude(user=self.request.user)
+        return queryset
 
     def get_serializer_class(self) -> Type[Serializer[Profile]]:
         """Return serializer depend on method"""
@@ -52,7 +55,10 @@ class ProfileListViewSet(
         methods=["GET", "PATCH"],
         detail=True,
         url_path="unfollow",
-        permission_classes=[permissions.IsAuthenticated],
+        permission_classes=[
+            permissions.IsAuthenticated,
+            CannotSubscribeYourselfPermission,
+        ],
     )
     def unfollow(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
         """Endpoint for unfollow user"""
@@ -67,7 +73,10 @@ class ProfileListViewSet(
         methods=["GET", "PATCH"],
         detail=True,
         url_path="follow",
-        permission_classes=[permissions.IsAuthenticated],
+        permission_classes=[
+            permissions.IsAuthenticated,
+            CannotSubscribeYourselfPermission,
+        ],
     )
     def follow(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
         """Endpoint for follow user"""
