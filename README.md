@@ -27,7 +27,7 @@
 
 ```shell
 git clone https://github.com/bythewaters/social-media-api.git
-cd library-service
+cd social_media
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -37,7 +37,7 @@ python manage.py runserver
 - Use the following command to load prepared data from fixture(if you need):
   - `python manage.py loaddata social_media_data.json`.
 
-Start celery worker with redis db:
+Start celery worker with redis db in docker:
 ```shell
 docker run -d -p 6379:6379 redis
 celery -A social_media_api worker
