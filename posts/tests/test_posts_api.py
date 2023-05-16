@@ -114,7 +114,9 @@ class AuthenticatePostApiTests(TestCase):
         post2 = sample_post(owner=self.user2)
         comment_data = {"content": "Test Comment"}
         serializer2 = PostSerializer(post2)
-        res = self.client.post(POST_URL + f"{post2.id}/add-comment/", data=comment_data)
+        res = self.client.post(
+            POST_URL + f"{post2.id}/add-comment/", data=comment_data
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(serializer2.data["comments"], 1)
 

@@ -16,9 +16,13 @@ def profile_image_file_path(instance: "Profile", filename: str) -> str:
 
 class Profile(models.Model):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile"
     )
-    username = models.CharField(max_length=100, null=True, blank=True, unique=True)
+    username = models.CharField(
+        max_length=100, null=True, blank=True, unique=True
+    )
     first_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)

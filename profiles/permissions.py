@@ -22,5 +22,6 @@ class HasProfilePermission(permissions.BasePermission):
 class CannotSubscribeYourselfPermission(permissions.BasePermission):
     def has_permission(self, request: Request, view) -> bool:
         return bool(
-            request.method in SAFE_METHODS and request.user != view.get_object().user
+            request.method in SAFE_METHODS
+            and request.user != view.get_object().user
         )

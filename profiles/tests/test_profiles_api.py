@@ -73,7 +73,9 @@ class AuthenticatedProfileApiTests(TestCase):
         profile1 = sample_profile(user=self.user1)
         profile2 = sample_profile(user=self.user2, username="FindTest")
 
-        res = self.client.get(PROFILE_URL, {"username": f"{profile2.username}"})
+        res = self.client.get(
+            PROFILE_URL, {"username": f"{profile2.username}"}
+        )
 
         serializer1 = ProfileListSerializer(profile1)
         serializer2 = ProfileListSerializer(profile2)
@@ -85,10 +87,14 @@ class AuthenticatedProfileApiTests(TestCase):
     def test_filter_profiles_by_location(self):
         profile1 = sample_profile(user=self.user1, location="test2loc")
         profile2 = sample_profile(
-            user=self.user2, location="Testlocation", username="testuser"
+            user=self.user2,
+            location="Testlocation",
+            username="testuser"
         )
 
-        res = self.client.get(PROFILE_URL, {"location": f"{profile2.location}"})
+        res = self.client.get(
+            PROFILE_URL, {"location": f"{profile2.location}"}
+        )
 
         serializer1 = ProfileListSerializer(profile1)
         serializer2 = ProfileListSerializer(profile2)
@@ -120,13 +126,19 @@ class AuthenticatedProfileApiTests(TestCase):
 
         res2 = self.client.get(PROFILE_URL + f"{user2.id}/unfollow/")
         self.assertEqual(res2.status_code, status.HTTP_302_FOUND)
-        self.assertFalse(user1.following.filter(id=user2.id).exists())
-        self.assertFalse(user2.followers.filter(id=user1.id).exists())
+        self.assertFalse(
+            user1.following.filter(id=user2.id).exists()
+        )
+        self.assertFalse(
+            user2.followers.filter(id=user1.id).exists()
+        )
 
     def test_update_profile(self):
         profile = sample_profile(user=self.user1)
         data = {"username": "AnotherUsername"}
-        serializer = UpdateProfileSerializer(instance=profile, data=data, partial=True)
+        serializer = UpdateProfileSerializer(
+            instance=profile, data=data, partial=True
+        )
         serializer.is_valid()
         updated_profile = serializer.save()
         self.assertEqual(updated_profile.username, data["username"])
@@ -151,7 +163,9 @@ class ProfileImageUploadTests(TestCase):
             img = Image.new("RGB", (10, 10))
             img.save(ntf, format="JPEG")
             ntf.seek(0)
-            res = self.client.post(url, {"profile_picture": ntf}, format="multipart")
+            res = self.client.post(
+                url, {"profile_picture": ntf}, format="multipart"
+            )
         self.profile.refresh_from_db()
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)

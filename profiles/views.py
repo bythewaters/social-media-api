@@ -62,7 +62,9 @@ class ProfileListViewSet(
             CannotSubscribeYourselfPermission,
         ],
     )
-    def unfollow(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+    def unfollow(
+            self, request: Request, pk: Optional[int]
+    ) -> HttpResponseRedirect:
         """Endpoint for unfollow user"""
         profile = self.request.user.profile
         unfollow_user_profile = Profile.objects.get(pk=pk)
@@ -80,7 +82,9 @@ class ProfileListViewSet(
             CannotSubscribeYourselfPermission,
         ],
     )
-    def follow(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+    def follow(
+            self, request: Request, pk: Optional[int]
+    ) -> HttpResponseRedirect:
         """Endpoint for follow user"""
         profile = self.request.user.profile
         follow_user_profile = Profile.objects.get(pk=pk)
@@ -153,7 +157,9 @@ class MyProfileViewSet(
     def update_profile(self, request: Request) -> Response:
         """Endpoint for update user profile"""
         profile = self.request.user.profile
-        serializer = self.get_serializer(profile, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            profile, data=request.data, partial=True
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

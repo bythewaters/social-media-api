@@ -27,7 +27,7 @@
 
 ```shell
 git clone https://github.com/bythewaters/social-media-api.git
-cd social_media
+cd social_media_api
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt

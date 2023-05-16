@@ -55,10 +55,13 @@ class CreatePostView(
     def perform_create(self, serializer: Serializer[Post]) -> None:
         """
         Perform the creation of a post.
-        If the connection to Redis is available, the post will be scheduled to be created at a specific date and time
-        specified by the 'created_time' field in the request data. If 'created_time' is not provided, the current time
+        If the connection to Redis is available,
+        the post will be scheduled to be created at a specific date and time
+        specified by the 'created_time' field in the request data.
+        If 'created_time' is not provided, the current time
         will be used.
-        If the connection to Redis is not available, the post will be created immediately.
+        If the connection to Redis is not available,
+        the post will be created immediately.
         """
         if self.check_connection_to_redis():
             created_time = self.request.data.get("created_time")
@@ -145,7 +148,9 @@ class PostListView(
         """Endpoint for get followers posts"""
         user = request.user
         following = user.profile.following.all()
-        posts = Post.objects.filter(owner__in=following).order_by("-created_time")
+        posts = Post.objects.filter(
+            owner__in=following
+        ).order_by("-created_time")
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -171,7 +176,9 @@ class PostListView(
         url_path="like",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def like(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+    def like(
+            self, request: Request, pk: Optional[int]
+    ) -> HttpResponseRedirect:
         """Endpoint for like post"""
         user = self.request.user
         post = Post.objects.get(pk=pk)
@@ -186,9 +193,13 @@ class PostListView(
         methods=["GET", "POST"],
         detail=True,
         url_path="dislike",
-        permission_classes=[permissions.IsAuthenticated],
+        permission_classes=[
+            permissions.IsAuthenticated
+        ],
     )
-    def dislike(self, request: Request, pk: Optional[int]) -> HttpResponseRedirect:
+    def dislike(
+            self, request: Request, pk: Optional[int]
+    ) -> HttpResponseRedirect:
         """Endpoint for dislike post"""
         user = self.request.user
         post = Post.objects.get(pk=pk)
@@ -204,12 +215,14 @@ class PostListView(
             OpenApiParameter(
                 "title",
                 type=OpenApiTypes.STR,
-                description="Filter by title name (ex. ?title=something)",
+                description="Filter by title name "
+                            "(ex. ?title=something)",
             ),
             OpenApiParameter(
                 "created_time",
                 type=OpenApiTypes.DATE,
-                description="Filter by created_time of posts (ex. ?date=2022-10-23)",
+                description="Filter by created_time of posts "
+                            "(ex. ?date=2022-10-23)",
             ),
         ]
     )

@@ -2,8 +2,14 @@ from rest_framework import mixins, permissions
 from rest_framework.viewsets import GenericViewSet
 
 from likes.models import Like, Dislike
-from likes.serializers import LikeCreateSerializer, LikeSerializer, LikeDeleteSerializer, DislikeCreateSerializer, \
-    DislikeDeleteSerializer, DislikeSerializer
+from likes.serializers import (
+    LikeCreateSerializer,
+    LikeSerializer,
+    LikeDeleteSerializer,
+    DislikeCreateSerializer,
+    DislikeDeleteSerializer,
+    DislikeSerializer,
+)
 
 
 class ReactionCreateViewSet(mixins.CreateModelMixin, GenericViewSet):
@@ -33,10 +39,14 @@ class DislikeCreateViewSet(mixins.CreateModelMixin, GenericViewSet):
 class DislikeDeleteViewSet(mixins.DestroyModelMixin, GenericViewSet):
     serializer_class = DislikeDeleteSerializer
     queryset = Dislike.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
 
 
 class DislikeListViewSet(mixins.ListModelMixin, GenericViewSet):
     serializer_class = DislikeSerializer
     queryset = Dislike.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]

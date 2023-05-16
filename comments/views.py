@@ -2,7 +2,10 @@ from rest_framework import permissions, mixins
 from rest_framework.viewsets import GenericViewSet
 
 from comments.models import Commentary
-from comments.serializers import CommentaryCreateSerializer, CommentarySerializer
+from comments.serializers import (
+    CommentaryCreateSerializer,
+    CommentarySerializer
+)
 
 
 class CommentaryListViewSet(mixins.ListModelMixin, GenericViewSet):

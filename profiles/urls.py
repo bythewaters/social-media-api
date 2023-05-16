@@ -1,7 +1,11 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from profiles.views import ProfileListViewSet, MyProfileViewSet, ProfileCreateViewSet
+from profiles.views import (
+    ProfileListViewSet,
+    MyProfileViewSet,
+    ProfileCreateViewSet
+)
 
 router = routers.DefaultRouter()
 router.register("list", ProfileListViewSet, basename="profiles_list")
