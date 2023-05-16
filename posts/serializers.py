@@ -64,11 +64,20 @@ class PostDetailSerializer(serializers.ModelSerializer):
         ]
 
 
-class PostCreateSerializer(PostSerializer):
+class PostCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
             "title",
             "content",
             "created_time",
+        ]
+
+
+class PostCreateWithoutWorkerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = [
+            "title",
+            "content",
         ]

@@ -1,9 +1,11 @@
 from datetime import datetime
 from typing import Optional
 
+import redis
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import permissions, mixins, status
@@ -18,7 +20,12 @@ from comments.serializers import CommentaryCreateSerializer
 from likes.models import Like, Dislike
 from likes.serializers import LikeCreateSerializer, LikeDeleteSerializer
 from .models import Post
-from .serializers import PostSerializer, PostCreateSerializer, PostDetailSerializer
+from .serializers import (
+    PostSerializer,
+    PostCreateSerializer,
+    PostDetailSerializer,
+    PostCreateWithoutWorkerSerializer,
+)
 
 
 class CreatePostView(
@@ -29,20 +36,47 @@ class CreatePostView(
     serializer_class = PostCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    @staticmethod
+    def check_connection_to_redis() -> bool:
+        """Check if redis run and return True or False"""
+        redis_client = redis.Redis(host="localhost", port=6379)
+        try:
+            redis_client.ping()
+        except redis.exceptions.ConnectionError:
+            return False
+        else:
+            return True
+
+    def get_serializer_class(self):
+        if not self.check_connection_to_redis():
+            return PostCreateWithoutWorkerSerializer
+        return self.serializer_class
+
     def perform_create(self, serializer: Serializer[Post]) -> None:
-        created_time = self.request.data.get("created_time")
-        title = self.request.data.get("title")
-        content = self.request.data.get("content")
-        eta = datetime.strptime(created_time, "%Y-%m-%dT%H:%M")
-        serializer.save(owner=self.request.user)
-        create_post_on_a_specific_date.apply_async(
-            args=[
-                title,
-                content,
-                self.request.user.id,
-            ],
-            kwargs={"eta": eta},
-        )
+        """
+        Perform the creation of a post.
+        If the connection to Redis is available, the post will be scheduled to be created at a specific date and time
+        specified by the 'created_time' field in the request data. If 'created_time' is not provided, the current time
+        will be used.
+        If the connection to Redis is not available, the post will be created immediately.
+        """
+        if self.check_connection_to_redis():
+            created_time = self.request.data.get("created_time")
+            if not created_time:
+                created_time = timezone.now().strftime("%Y-%m-%dT%H:%M")
+            title = self.request.data.get("title")
+            content = self.request.data.get("content")
+            eta = datetime.strptime(created_time, "%Y-%m-%dT%H:%M")
+            create_post_on_a_specific_date.apply_async(
+                args=[
+                    title,
+                    content,
+                    self.request.user.id,
+                ],
+                kwargs={"eta": eta},
+            )
+        else:
+            serializer.save(owner=self.request.user)
 
 
 class PostListView(
@@ -104,14 +138,14 @@ class PostListView(
     @action(
         methods=["GET"],
         detail=False,
-        url_path="followers-posts",
+        url_path="followings-posts",
         permission_classes=[permissions.IsAuthenticated],
     )
-    def followers_posts(self, request: Request) -> Response:
+    def following_users_posts(self, request: Request) -> Response:
         """Endpoint for get followers posts"""
         user = request.user
-        followers = user.profile.followers.all()
-        posts = Post.objects.filter(owner__in=followers).order_by("-created_time")
+        following = user.profile.following.all()
+        posts = Post.objects.filter(owner__in=following).order_by("-created_time")
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

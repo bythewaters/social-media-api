@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register("create", CreatePostView, basename="create_post")
 router.register("list", PostListView, basename="post_list")
 
+
 urlpatterns = [
     path("", include(router.urls)),
 ]
